@@ -13,5 +13,6 @@ namespace FinancialAssistant
         public string email;
         public string password;
         public string birthday;
+        public bool isLogin = false;
     }
 }
