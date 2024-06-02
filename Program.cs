@@ -17,6 +17,7 @@ namespace FinancialAssistant
         {
             UserInformation UserInformation = new UserInformation();
             Bills Bills = new Bills();
+            Subscriptions subscriptions = new Subscriptions();
 
             //SQL Connection
             string conString = "Your Connection String";
@@ -159,7 +160,7 @@ namespace FinancialAssistant
                     connect.Open();
                 }
 
-                Console.WriteLine("Welcome! \nHere you can see your bills,or add new bills.What do you want to do? \n1 - Show Bills\n2 - Add Bills\n3 - Update Bills");
+                Console.WriteLine("Welcome! \nHere you can do your bill actions. \n1 - Show Bills\n2 - Add Bills\n3 - Update Bills");
                 billInput = Console.ReadLine();
 
                 if (billInput == "1")
@@ -220,7 +221,7 @@ namespace FinancialAssistant
                     }
                 }
 
-                else if(billInput == "3")
+                else if (billInput == "3")
                 {
 
                     Console.WriteLine("Which bill do you want to update? : ");
@@ -229,7 +230,7 @@ namespace FinancialAssistant
                     Bills.cost = Convert.ToInt32(Console.ReadLine());
 
                     string updateBills = "Update BillTable set cost = @costparameter where billName = @nameparameter"; //Cost and billName are my columns name.
-                    SqlCommand cmdUpdate = new SqlCommand(updateBills,connect);
+                    SqlCommand cmdUpdate = new SqlCommand(updateBills, connect);
 
                     cmdUpdate.Parameters.AddWithValue("@costparameter", Bills.cost);
                     cmdUpdate.Parameters.AddWithValue("@nameparameter", Bills.name);
@@ -240,10 +241,126 @@ namespace FinancialAssistant
 
                 }
             }
-
             void SubscribeFunction()
             {
-                Console.WriteLine("subscribe");
+                Console.Clear();
+                string subscriptionInput;
+
+                if (connect.State == ConnectionState.Closed)
+                {
+                    connect.Open();
+                }
+
+                Console.WriteLine("Welcome! \nHere you can do your subscription actions. \n1 - Show Subscriptions\n2 - Add Subscription\n3 - Update Subscriptions");
+                subscriptionInput = Console.ReadLine();
+
+                if (subscriptionInput == "1")
+                {
+                    Console.Clear();
+
+                    try
+                    {
+                        string showSubscriptions = "select * from SubscriptionTable";
+                        SqlCommand cmdssubscriptions = new SqlCommand(showSubscriptions, connect);
+
+                        dr = cmdssubscriptions.ExecuteReader();
+
+                        while (dr.Read())
+                        {
+                            for (int i = 0; i < dr.FieldCount; i++)
+                            {
+                                Console.WriteLine(dr[i].ToString());
+                            }
+                        }
+                        dr.Close();
+                        cmdssubscriptions.ExecuteNonQuery();
+                    }
+
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                    connect.Close();
+                }
+
+                if (subscriptionInput == "2")
+                {
+                    Console.Clear();
+
+                    Console.WriteLine("Write your subscription's name : ");
+                    subscriptions.name = Console.ReadLine();
+                    Console.WriteLine("Write how many months you subscribe : ");
+                    subscriptions.months = Convert.ToInt16(Console.ReadLine());
+                    Console.WriteLine("Write your subscription's price : ");
+                    subscriptions.price = Convert.ToInt16(Console.ReadLine());
+
+                    try
+                    {
+                        string addSubscription = "Insert into SubscriptionTable (subscriptionName, months, price) values (@sn,@m,@p)";
+                        SqlCommand cmdaSubscription = new SqlCommand(addSubscription, connect);
+
+                        cmdaSubscription.Parameters.AddWithValue("@sn", subscriptions.name);
+                        cmdaSubscription.Parameters.AddWithValue("@m", subscriptions.months);
+                        cmdaSubscription.Parameters.AddWithValue("@p", subscriptions.price);
+
+                        Console.WriteLine("Successful!");
+                        cmdaSubscription.ExecuteNonQuery();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                    connect.Close();
+                }
+
+                if (subscriptionInput == "3")
+                {
+
+                    string updateInput; 
+                    Console.Clear();
+
+                    Console.WriteLine("Which subscription do you want to update : ");
+                    subscriptions.name = Console.ReadLine();
+                    Console.WriteLine("What do you want want to update about " + subscriptions.name + "\n1 - The price, 2 - The month");
+                    updateInput = Console.ReadLine();
+
+                    if (updateInput == "1")
+                    {
+                        Console.WriteLine("Set the price : ");
+                        subscriptions.price = Convert.ToInt16(Console.ReadLine());
+
+                        string updatepSubscription = "Update SubscriptionTable set price = @p where subscriptionName = @sn";
+                        SqlCommand cmduSubscription = new SqlCommand(updatepSubscription, connect);
+
+                        cmduSubscription.Parameters.AddWithValue("@p",subscriptions.price);
+                        cmduSubscription.Parameters.AddWithValue("@sn", subscriptions.name);
+
+                        Console.WriteLine("Successful!");
+
+                        cmduSubscription.ExecuteNonQuery();
+                        connect.Close();
+                    }
+
+                    if (updateInput == "2")
+                    {
+                        Console.WriteLine("How many months do you want to update of your " + subscriptions.name + " subscription");
+                        subscriptions.months = Convert.ToInt16(Console.ReadLine());
+
+                        string updatemSubscription = "Update SubscriptionTable set months = @m where subscriptionName = @sn";
+                        SqlCommand cmduSubscription = new SqlCommand(updatemSubscription, connect);
+
+                        cmduSubscription.Parameters.AddWithValue("@m", subscriptions.months);
+                        cmduSubscription.Parameters.AddWithValue("@sn", subscriptions.name);
+
+                        Console.WriteLine("Successful!");
+                        
+                        cmduSubscription.ExecuteNonQuery();
+                        connect.Close();
+                    }
+                }
             }
         }
     }
