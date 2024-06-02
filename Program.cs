@@ -38,13 +38,21 @@ namespace FinancialAssistant
 
             else if (userInput == "2")
             {
-                int actionNumber = 0;
-
                 Console.Clear();
                 LoginFunction();
+                MainMenu();
+            }
 
+            Console.ReadKey();
+
+            //functions
+            void MainMenu()
+            {
+                Console.Clear();
                 if (UserInformation.isLogin == true)
                 {
+                    int actionNumber = 0;
+
                     Console.Clear();
                     Console.WriteLine("What action do you want to do?");
                     Console.WriteLine("1 - Bills \n2 - Subscriptions");
@@ -63,13 +71,8 @@ namespace FinancialAssistant
                             SubscribeFunction();
                             break;
                     }
-
                 }
             }
-
-            Console.ReadKey();
-
-            //functions
             void SignUpFunction()
             {
                 try
@@ -148,6 +151,8 @@ namespace FinancialAssistant
                 }
                 connect.Close();
 
+                
+
             }
             void BillsFunction()
             {
@@ -184,6 +189,7 @@ namespace FinancialAssistant
                                 Console.WriteLine(dr[i].ToString() + "\t");
                             }
                         }
+
                     }
 
                     catch (Exception ex)
@@ -192,6 +198,10 @@ namespace FinancialAssistant
                     }
 
                     connect.Close();
+
+                    Console.WriteLine("Press any key to go back to main menu.");
+                    Console.ReadKey();
+                    MainMenu();
                 }
 
                 else if (billInput == "2")
@@ -214,6 +224,11 @@ namespace FinancialAssistant
 
                         cmdbill.ExecuteNonQuery();
                         connect.Close();
+
+                        Console.WriteLine("Press any key to go back to main menu.");
+                        Console.ReadKey();
+                        MainMenu();
+
                     }
                     catch (Exception ex)
                     {
@@ -238,6 +253,10 @@ namespace FinancialAssistant
                     Console.WriteLine("Successful!");
                     cmdUpdate.ExecuteNonQuery();
                     connect.Close();
+
+                    Console.WriteLine("Press any key to go back to main menu.");
+                    Console.ReadKey();
+                    MainMenu();
 
                 }
             }
@@ -282,6 +301,10 @@ namespace FinancialAssistant
                     }
 
                     connect.Close();
+
+                    Console.WriteLine("Press any key to go back to main menu.");
+                    Console.ReadKey();
+                    MainMenu();
                 }
 
                 if (subscriptionInput == "2")
@@ -314,6 +337,10 @@ namespace FinancialAssistant
                     }
 
                     connect.Close();
+
+                    Console.WriteLine("Press any key to go back to main menu.");
+                    Console.ReadKey();
+                    MainMenu();
                 }
 
                 if (subscriptionInput == "3")
@@ -342,6 +369,10 @@ namespace FinancialAssistant
 
                         cmduSubscription.ExecuteNonQuery();
                         connect.Close();
+
+                        Console.WriteLine("Press any key to go back to main menu.");
+                        Console.ReadKey();
+                        MainMenu();
                     }
 
                     if (updateInput == "2")
@@ -359,6 +390,10 @@ namespace FinancialAssistant
                         
                         cmduSubscription.ExecuteNonQuery();
                         connect.Close();
+
+                        Console.WriteLine("Press any key to go back to main menu.");
+                        Console.ReadKey();
+                        MainMenu();
                     }
                 }
             }
