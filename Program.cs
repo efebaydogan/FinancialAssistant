@@ -1,12 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SqlClient;
 using System.Data;
-using System.Runtime.Remoting;
-using System.Diagnostics;
+using System.Data.SqlClient;
 
 namespace FinancialAssistant
 {
@@ -55,7 +49,7 @@ namespace FinancialAssistant
 
                     Console.Clear();
                     Console.WriteLine("What action do you want to do?");
-                    Console.WriteLine("1 - Bills \n2 - Subscriptions");
+                    Console.WriteLine("1 - Bills \n2 - Subscriptions \n3 - Income and Expense");
 
                     actionNumber = Convert.ToInt16(Console.ReadLine());
 
@@ -70,6 +64,10 @@ namespace FinancialAssistant
                             Console.Clear();
                             SubscribeFunction();
                             break;
+                        case 3:
+                            Console.Clear();
+                            IncomeExpenseFunction();
+                            break;
                     }
                 }
             }
@@ -82,7 +80,7 @@ namespace FinancialAssistant
                         connect.Open();
                     }
 
-                    string signup = "(Your Connection String)";
+                    string signup = "INSERT INTO UserInformation (firstName,secondName,email,birthday,password) VALUES (@fn,@sn,@e,@bd,@pw)";
                     //In the first parantheses,you should write your columns name in your sql table.Second paranteses include our parametres.You can write what do you want with @.
                     SqlCommand cmdsignup = new SqlCommand(signup, connect);
 
@@ -151,7 +149,7 @@ namespace FinancialAssistant
                 }
                 connect.Close();
 
-                
+
 
             }
             void BillsFunction()
@@ -346,7 +344,7 @@ namespace FinancialAssistant
                 if (subscriptionInput == "3")
                 {
 
-                    string updateInput; 
+                    string updateInput;
                     Console.Clear();
 
                     Console.WriteLine("Which subscription do you want to update : ");
@@ -362,7 +360,7 @@ namespace FinancialAssistant
                         string updatepSubscription = "Update SubscriptionTable set price = @p where subscriptionName = @sn";
                         SqlCommand cmduSubscription = new SqlCommand(updatepSubscription, connect);
 
-                        cmduSubscription.Parameters.AddWithValue("@p",subscriptions.price);
+                        cmduSubscription.Parameters.AddWithValue("@p", subscriptions.price);
                         cmduSubscription.Parameters.AddWithValue("@sn", subscriptions.name);
 
                         Console.WriteLine("Successful!");
@@ -387,7 +385,7 @@ namespace FinancialAssistant
                         cmduSubscription.Parameters.AddWithValue("@sn", subscriptions.name);
 
                         Console.WriteLine("Successful!");
-                        
+
                         cmduSubscription.ExecuteNonQuery();
                         connect.Close();
 
@@ -396,6 +394,78 @@ namespace FinancialAssistant
                         MainMenu();
                     }
                 }
+            }
+            void IncomeExpenseFunction()
+            {
+                //Expense Section
+                Console.WriteLine("Here you can see your expense and income.");
+
+                //We need to send bill and subscription datas to ExpenseTable.Then we calculate the exoense.
+
+                if (connect.State == ConnectionState.Closed)
+                {
+                    connect.Open();
+                }
+
+                //We insert the datas to our expense table but also we check is there same data in our expense table.
+                string sendbExpense = "Insert into ExpenseTable (expenseName,expenseAmount) Select billName , cost from BillTable Where not exists (Select 1 from ExpenseTable where ExpenseTable.expenseName = BillTable.billName and ExpenseTable.expenseAmount = BillTable.cost)";
+                string sendsExpense = "Insert Into ExpenseTable (expenseName,expenseAmount) Select subscriptionName,price from SubscriptionTable where not exists (Select 1 from ExpenseTable where ExpenseTable.expenseName = subscriptionName and ExpenseTable.expenseAmount = SubscriptionTable.price)";
+                SqlCommand cmdsExpense = new SqlCommand(sendbExpense, connect);
+                SqlCommand cmdsExpense2 = new SqlCommand(sendsExpense, connect);
+
+                cmdsExpense.ExecuteNonQuery();
+                cmdsExpense2.ExecuteNonQuery();
+
+                //We send datas.Now we will calculate expense.
+
+                string calExpense = "Select sum(expenseAmount) from ExpenseTable";
+                SqlCommand cmdcExpense = new SqlCommand(calExpense, connect);
+                object calculate = cmdcExpense.ExecuteScalar();
+                int total1 = Convert.ToInt32(calculate);
+                cmdcExpense.ExecuteScalar();
+
+                Console.WriteLine("Let's see your expense : " + total1);
+
+
+
+                //Income Section
+                //We will check is there any data in IncomeTable.
+                string checkNull = "select count(*) from IncomeTable ";
+                SqlCommand cmdcNull = new SqlCommand(checkNull, connect);
+                int rowCount = Convert.ToInt32(cmdcNull.ExecuteScalar());
+
+                if (rowCount > 0)
+                {
+                    string calIncome = "Select sum(incomeAmount) from IncomeTable";
+                    SqlCommand cmdcIncome = new SqlCommand(calIncome, connect);
+                    int total2 = Convert.ToInt32(cmdcIncome.ExecuteScalar());
+                    Console.WriteLine("And your income is : " + total2);
+                }
+
+                else
+                {
+
+                    Console.WriteLine("There is no income data in the table.You need to enter.");
+
+                    Console.WriteLine("Enter the income name.");
+                    UserInformation.incomeName = Console.ReadLine();
+                    Console.WriteLine("Enter the income amount.");
+                    UserInformation.incomeAmount = Console.ReadLine();
+
+                    string insertIncome = "Insert into IncomeTable(incomeName,incomeAmount) values (@in,@ia)";
+                    SqlCommand cmdiIncome = new SqlCommand(@insertIncome, connect);
+
+                    cmdiIncome.Parameters.AddWithValue("@in", UserInformation.incomeName);
+                    cmdiIncome.Parameters.AddWithValue("@ia", UserInformation.incomeAmount);
+                    cmdiIncome.ExecuteNonQuery();
+                    Console.WriteLine("Successful.");
+                }
+
+                connect.Close();
+                Console.WriteLine("Press any key to go back to main menu.");
+                Console.ReadKey();
+                MainMenu();
+
             }
         }
     }
