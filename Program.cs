@@ -68,6 +68,12 @@ namespace FinancialAssistant
                             Console.Clear();
                             IncomeExpenseFunction();
                             break;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine("Invalid value");
+                            Console.ReadKey();
+                            MainMenu();
+                            break;
                     }
                 }
             }
